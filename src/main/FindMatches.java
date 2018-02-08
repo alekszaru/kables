@@ -33,27 +33,39 @@ public class FindMatches {
 
 
 
-    public static void main(String[] args) throws IOException {
-
-//        //загрузка файла дтс
-//        try {
-//            loadDTSfile();
-//        }catch (NullPointerException e){
-//
-//        } catch (SQLException e) {
-//
-//        }
+    public static void main(String[] args) throws IOException, SQLException {
 
 
-        //загрузка файла Энергоальянс
+        Connection connection = createConnection();
+
+        //загрузка файла дтс
         try {
-            loadEAfile();
+            loadDTSfile(connection);
         }catch (NullPointerException e){
 
         } catch (SQLException e) {
 
         }
 
+        //загрузка файла Энергоальянс
+        try {
+            loadEAfile(connection);
+        }catch (NullPointerException e){
+
+        } catch (SQLException e) {
+
+        }
+
+        //загрузка файла МастерКабель
+        try {
+            loadMKfile(connection);
+        }catch (NullPointerException e){
+
+        } catch (SQLException e) {
+
+        }
+
+        connection.close();
 
     }
 
@@ -62,30 +74,30 @@ public class FindMatches {
 
            ArrayList<String> rezult = new ArrayList<String>();
 
-//            try {
-//                findInDB(request, rezult);
-//            } catch (SQLException e) {
-//
+            try {
+                findInDB(request, rezult);
+            } catch (SQLException e) {
+
+            }
+
+
+//            try{
+//            findMatchesDTS(request, rezult);}catch (FileNotFoundException e){
+//                System.out.println("File DTS notFound");
+//                rezult.add("File DTS notFound");
 //            }
-
-
-            try{
-            findMatchesDTS(request, rezult);}catch (FileNotFoundException e){
-                System.out.println("File DTS notFound");
-                rezult.add("File DTS notFound");
-            }
-
-            try{
-            findMatchesEA(request, rezult);}catch (FileNotFoundException e){
-                System.out.println("File EA notFound");
-                rezult.add("File EA notFound");
-            }
-
-            try{
-            findMatchesMK(request, rezult);}catch (FileNotFoundException e){
-                System.out.println("File MK notFound");
-                rezult.add("File MK prise notFound");
-            }
+//
+//            try{
+//            findMatchesEA(request, rezult);}catch (FileNotFoundException e){
+//                System.out.println("File EA notFound");
+//                rezult.add("File EA notFound");
+//            }
+//
+//            try{
+//            findMatchesMK(request, rezult);}catch (FileNotFoundException e){
+//                System.out.println("File MK notFound");
+//                rezult.add("File MK prise notFound");
+//            }
 
 //            try{
 //            findMatchesInPriceEA(request, rezult);}catch (FileNotFoundException e){
@@ -101,251 +113,255 @@ public class FindMatches {
         }
 
 
-
-    private void findMatchesDTS(String request, ArrayList<String> rezult) throws IOException {// поиск в файле DTS
-        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(eaFileName));
-        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
-        HSSFRow row;
-        for (int i = 1; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
-            try {
-                row = myExcelSheet.getRow(i);
-                String name = row.getCell(1).getStringCellValue().toUpperCase();
-                Double cuantaty = null;
-                Double price = null;
-                String answer = "";
-
-                if ((name.contains("ПРОВІД ") || name.contains("КАБЕЛЬ "))&& (row.getCell(4).getNumericCellValue()) > 0) {
-                    name = name.replaceAll("КАБЕЛЬ ", "");
-                    name = name.replaceAll("ПРОВІД ", "");
-
-                    if (request.contains(" ")) {
-                        String request1 = request.substring(0, request.lastIndexOf(" ")).toUpperCase();
-                        String request2 = request.substring(request.lastIndexOf(" ") + 1).toUpperCase();
-
-                        if (name.startsWith(request1)&& name.contains(request2)) {
-                            cuantaty = row.getCell(4).getNumericCellValue()*1000;
-                            price = row.getCell(4).getNumericCellValue()/1000;
-                            answer = name + " - " + String.format("%.0f", cuantaty) + " м   по  " + String.format("%.2f", price)+ " грн";
-                            rezult.add(answer + actualityDate(dtsFileName));
-                        }
-
-                    } else {
-                        if (name.contains(request)) {
-                            cuantaty = row.getCell(4).getNumericCellValue()*1000;
-                            price = row.getCell(4).getNumericCellValue()/1000;
-                            answer = name + " - " + String.format("%.0f", cuantaty) + " м   по  " + String.format("%.2f", price)+ " грн";
-                            rezult.add(answer + actualityDate(dtsFileName));
-                        }
-                    }
-                }
-            }catch (IllegalStateException e) {
-                e.printStackTrace();
-            }catch (NullPointerException e2) {
-                e2.printStackTrace();
-            }
-        } myExcelBook.close();
-    } // поиск в файле DTS
-
-    private void findMatchesEA(String request, ArrayList<String> rezult) throws IOException {// поиск в файле Энергоальянс
-        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(eaFileName));
-        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
-        HSSFRow row;
-        for (int i = 1; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
-            try {
-                row = myExcelSheet.getRow(i);
-                String name = row.getCell(1).getStringCellValue().toUpperCase();
-                Double cuantaty = null;
-                String answer = "";
-
-                if ((name.contains("ПРОВІД ") || name.contains("КАБЕЛЬ "))&& (row.getCell(7).getNumericCellValue()) > 0) {
-                    name = name.replaceAll("КАБЕЛЬ ", "");
-                    name = name.replaceAll("ПРОВІД ", "");
-
-                    if (request.contains(" ")) {
-                        String request1 = request.substring(0, request.lastIndexOf(" ")).toUpperCase();
-                        String request2 = request.substring(request.lastIndexOf(" ") + 1).toUpperCase();
-
-                            if (name.startsWith(request1)&& name.contains(request2)) {
-                                cuantaty = row.getCell(7).getNumericCellValue();
-                                answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
-                                rezult.add(answer + actualityDate(eaFileName));
-                            }
-
-                    } else {
-                            if (name.contains(request)) {
-                                cuantaty = row.getCell(7).getNumericCellValue();
-                                answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
-                                rezult.add(answer + actualityDate(eaFileName));
-                            }
-                    }
-                }
-            }catch (IllegalStateException e) {
-                e.printStackTrace();
-            }catch (NullPointerException e2) {
-                e2.printStackTrace();
-            }
-        } myExcelBook.close();
-    }// поиск в файле Энергоальянс
-
-    private void findMatchesKPKZ(String request, ArrayList<String> rezult) throws IOException {//поиск в прайсе Кабельный завод
-        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(kpkzPriceFileName));
-        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
-        HSSFRow row;
-
-        for (int i = 0; i < myExcelSheet.getPhysicalNumberOfRows() ; i++) {
-            row = myExcelSheet.getRow(i);
-            String fullName = "";
-
-            try {
-                for(int j=0; j<10;j++){
-                fullName+=getTextCellValue(row.getCell(j))+" ";
-                fullName=fullName.replace(".0 ","");
-                fullName=fullName.replace("х ","х");
-                fullName=fullName.replace("ХЛ ","");
-                    fullName=fullName.replace("1000","1кВ  ");
-                    fullName=fullName.replace("660","0,66кВ  ");
-                    fullName=fullName.replace("380/660","");
-                    fullName=fullName.replace("кму","");
-                }
-
-            } catch (IllegalStateException e){
-                System.out.println("incorrect celltype");
-            }
-            catch (NullPointerException e5){
-                System.out.println("null refference in cell");
-            }
-            //System.out.println(fullName);
-
-            if (request.contains(" ")) {
-                String request1 = request.substring(0, request.lastIndexOf(" "));
-                String request2 = request.substring(request.lastIndexOf(" ") + 1);
-                if (fullName.toUpperCase().contains(request1.toUpperCase()) && fullName.toUpperCase().contains(request2.toUpperCase())) {
-                    Double price = row.getCell(15).getNumericCellValue() / 1000;
-                    fullName += " - " + String.format("%.2f",price) + " грн/м"+ "  ПРАЙС КАМЕНЕЦ "+actualityDate(kpkzPriceFileName);
-                   // System.out.println(fullName);
-                    rezult.add(fullName);
-                }
-            }
-
-            else{
-                if(fullName.toUpperCase().contains(request.toUpperCase())){
-                    Double price = row.getCell(15).getNumericCellValue() / 1000;
-                    fullName += " - " + String.format("%.2f",price) + " грн/м"+ "  ПРАЙС КАМЕНЕЦ "+actualityDate(kpkzPriceFileName);
-                    //System.out.println(fullName);
-                    rezult.add(fullName);
-                }
-            }
-
-        }
-    } //поиск в прайсе Кабельный Завод
-
-    private void findMatchesMK(String request, ArrayList<String> rezult) throws IOException {// поиск в файле МастерКабель
-        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(mkFileName));
-        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
-        HSSFRow row;
-        for (int i = 1; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
-            try {
-                row = myExcelSheet.getRow(i);
-                String name = row.getCell(1).getStringCellValue().toUpperCase();
-                Double cuantaty = null;
-                String answer = "";
-
-                if ((row.getCell(7).getNumericCellValue()) > 0) {
-
-                    if (request.contains(" ")) {
-                        String request1 = request.substring(0, request.lastIndexOf(" ")).toUpperCase();
-                        String request2 = request.substring(request.lastIndexOf(" ") + 1).toUpperCase();
-
-                        if (name.startsWith(request1)&& name.contains(request2)) {
-                            cuantaty = row.getCell(5).getNumericCellValue();
-                            answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
-                            rezult.add(answer + actualityDate(mkFileName));
-                        }
-
-                    } else {
-                        if (name.contains(request)) {
-                            cuantaty = row.getCell(5).getNumericCellValue();
-                            answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
-                            rezult.add(answer + actualityDate(mkFileName));
-                        }
-                    }
-                }
-            }catch (IllegalStateException e) {
-                e.printStackTrace();
-            }catch (NullPointerException e2) {
-                e2.printStackTrace();
-            }
-        } myExcelBook.close();
-    } // поиск в файле МастерКабель
-
-    private void findMatchesInPriceEA(String request, ArrayList<String> rezult) throws IOException {//поиск в прайсе Энергоальянс
-        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(eaPriceFileName));
-        int numsOfSheets = myExcelBook.getNumberOfSheets();
-        if(request.indexOf(" ")==0){request=request.substring(1);}
-//        System.out.println("----------------------------------------------------------");
-//        System.out.println("ПРАЙС ЭНЕРГОАЛЬЯНС" );
-
-        for(int s=0; s<numsOfSheets; s++){
-
-            HSSFSheet myExcelSheet = myExcelBook.getSheetAt(s);
-            HSSFRow row;
-            if (request.contains(" ")) {
-                String request1 = request.substring(0, request.lastIndexOf(" "));
-                String request2 = request.substring(request.lastIndexOf(" ") + 1);
-
-                for (int j = 0; j < 5; j++) {
-                    for (int i = 1; i < myExcelSheet.getPhysicalNumberOfRows() ; i++) {
-                        row = myExcelSheet.getRow(i);
-                        try {
-                            String name = row.getCell(1 + 4 * j).getStringCellValue();
-                            String name2 = row.getCell(2 + 4 * j).getStringCellValue();
-                            if (name.toUpperCase().startsWith(request1.toUpperCase()) && name2.toUpperCase().contains(request2.toUpperCase())) {
-                                Double price = row.getCell(3 + 4 * j).getNumericCellValue();
-                                String answer ="";
-                                if(name.toUpperCase().startsWith("А")||name.toUpperCase().startsWith("СИП")){
-                                    answer = name + " " + name2+ "  -  " + String.format("%.2f", price*eaAluminiumDiscount ) + " грн/м";}
-                                else {answer = name + " " + name2+ "  -  " + String.format("%.2f", price*eaCuprumDiscount ) + " грн/м";}
-                                answer = answer.replaceAll("Кабель ", "");
-                                answer = answer.replaceAll("Провід ","");
-                                //System.out.println(answer);
-                                rezult.add(answer+ " ПРАЙС ЭНЕРГОАЛЬЯНС "+actualityDate(eaPriceFileName));
-                            }
-                        } catch (IllegalStateException e) { e.printStackTrace(); }
-                        catch (NullPointerException e1){ e1.printStackTrace(); }
-                    }
-                }
-            }
-
-            else{
-
-                for (int j = 0; j < 2; j++) {
-                    for (int i = 1; i < myExcelSheet.getPhysicalNumberOfRows() ; i++) {
-                        row = myExcelSheet.getRow(i);
-                        try {
-                            String name =row.getCell(1 + 4 * j).getStringCellValue();
-                            String name2 =row.getCell(2 + 4 * j).getStringCellValue();
-                            if (name.toUpperCase().startsWith(request.toUpperCase()) ) {
-                                Double price = row.getCell(3 + 4 * j).getNumericCellValue();
-
-                                String answer ="";
-                                if(name.toUpperCase().startsWith("А")||name.toUpperCase().startsWith("СИП")){
-                                    answer = name + " - "+ " " + name2+ "  " + String.format("%.2f", price*eaAluminiumDiscount ) + " грн/м";}
-                                else {answer = name + " - "+ " " + name2+ "  " + String.format("%.2f", price*eaCuprumDiscount ) + " грн/м";}
-                                //System.out.println(answer);
-                                answer = answer.replaceAll("Кабель ", "");
-                                answer = answer.replaceAll("Провід ","");
-                                rezult.add(answer+ " ПРАЙС ЭНЕРГОАЛЬЯНС "+actualityDate(eaPriceFileName));
-                            }
-                        } catch (IllegalStateException e) {e.printStackTrace();
-                        }
-                        catch (NullPointerException e1){e1.printStackTrace();
-                        }
-                    }
-                }
-            }
-        }
-    } //поиск в прайсе Энергоальянс
-
+//
+//    private void findMatchesDTS(String request, ArrayList<String> rezult) throws IOException {// поиск в файле DTS
+//        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(dtsFileName));
+//        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
+//        HSSFRow row;
+//        for (int i = 1; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
+//            try {
+//                row = myExcelSheet.getRow(i);
+//                if(row.getCell(1).getCellType()==1) {
+//                    String name = row.getCell(1).getStringCellValue().toUpperCase();
+//                    Double cuantaty = null;
+//                    Double price = null;
+//                    String answer = "";
+//
+//                    if ((name.contains("ПРОВІД ") || name.contains("КАБЕЛЬ ")) && (row.getCell(3).getNumericCellValue()) > 0) {
+//                        name = name.replaceAll("КАБЕЛЬ ", "");
+//                        name = name.replaceAll("ПРОВІД ", "");
+//
+//                        if (request.contains(" ")) {
+//                            String request1 = request.substring(0, request.lastIndexOf(" ")).toUpperCase();
+//                            String request2 = request.substring(request.lastIndexOf(" ") + 1).toUpperCase();
+//
+//                            if (name.startsWith(request1) && name.contains(request2)) {
+//                                cuantaty = row.getCell(3).getNumericCellValue() * 1000;
+//                                price = row.getCell(4).getNumericCellValue() / 1000;
+//                                answer = name + " - " + String.format("%.0f", cuantaty) + " м   по  " + String.format("%.2f", price) + " грн";
+//                                rezult.add(answer + actualityDate(dtsFileName));
+//                            }
+//
+//                        } else {
+//                            if (name.contains(request)) {
+//                                cuantaty = row.getCell(3).getNumericCellValue() * 1000;
+//                                price = row.getCell(4).getNumericCellValue() / 1000;
+//                                answer = name + " - " + String.format("%.0f", cuantaty) + " м   по  " + String.format("%.2f", price) + " грн";
+//                                rezult.add(answer + actualityDate(dtsFileName));
+//                            }
+//                        }
+//                    }
+//                }
+//            }catch (IllegalStateException e) {
+//                e.printStackTrace();
+//            }catch (NullPointerException e2) {
+//                e2.printStackTrace();
+//            }
+//        } myExcelBook.close();
+//    } // поиск в файле DTS
+//
+//    private void findMatchesEA(String request, ArrayList<String> rezult) throws IOException {// поиск в файле Энергоальянс
+//        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(eaFileName));
+//        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
+//        HSSFRow row;
+//        for (int i = 1; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
+//            try {
+//                row = myExcelSheet.getRow(i);
+//                String name = row.getCell(1).getStringCellValue().toUpperCase();
+//                Double cuantaty = null;
+//                String answer = "";
+//
+//                if ((name.contains("ПРОВІД ") || name.contains("КАБЕЛЬ "))&& (row.getCell(7).getNumericCellValue()) > 0) {
+//                    name = name.replaceAll("КАБЕЛЬ ", "");
+//                    name = name.replaceAll("ПРОВІД ", "");
+//
+//                    if (request.contains(" ")) {
+//                        String request1 = request.substring(0, request.lastIndexOf(" ")).toUpperCase();
+//                        String request2 = request.substring(request.lastIndexOf(" ") + 1).toUpperCase();
+//
+//                            if (name.startsWith(request1)&& name.contains(request2)) {
+//                                cuantaty = row.getCell(7).getNumericCellValue();
+//                                answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
+//                                rezult.add(answer + actualityDate(eaFileName));
+//                            }
+//
+//                    } else {
+//                            if (name.contains(request)) {
+//                                cuantaty = row.getCell(7).getNumericCellValue();
+//                                answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
+//                                rezult.add(answer + actualityDate(eaFileName));
+//                            }
+//                    }
+//                }
+//            }catch (IllegalStateException e) {
+//                e.printStackTrace();
+//            }catch (NullPointerException e2) {
+//                e2.printStackTrace();
+//            }
+//        } myExcelBook.close();
+//    }// поиск в файле Энергоальянс
+//
+//    private void findMatchesKPKZ(String request, ArrayList<String> rezult) throws IOException {//поиск в прайсе Кабельный завод
+//        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(kpkzPriceFileName));
+//        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
+//        HSSFRow row;
+//
+//        for (int i = 0; i < myExcelSheet.getPhysicalNumberOfRows() ; i++) {
+//            row = myExcelSheet.getRow(i);
+//            String fullName = "";
+//
+//            try {
+//                for(int j=0; j<10;j++){
+//                fullName+=getTextCellValue(row.getCell(j))+" ";
+//                fullName=fullName.replace(".0 ","");
+//                fullName=fullName.replace("х ","х");
+//                fullName=fullName.replace("ХЛ ","");
+//                    fullName=fullName.replace("1000","1кВ  ");
+//                    fullName=fullName.replace("660","0,66кВ  ");
+//                    fullName=fullName.replace("380/660","");
+//                    fullName=fullName.replace("кму","");
+//                }
+//
+//            } catch (IllegalStateException e){
+//                System.out.println("incorrect celltype");
+//            }
+//            catch (NullPointerException e5){
+//                System.out.println("null refference in cell");
+//            }
+//            //System.out.println(fullName);
+//
+//            if (request.contains(" ")) {
+//                String request1 = request.substring(0, request.lastIndexOf(" "));
+//                String request2 = request.substring(request.lastIndexOf(" ") + 1);
+//                if (fullName.toUpperCase().contains(request1.toUpperCase()) && fullName.toUpperCase().contains(request2.toUpperCase())) {
+//                    Double price = row.getCell(15).getNumericCellValue() / 1000;
+//                    fullName += " - " + String.format("%.2f",price) + " грн/м"+ "  ПРАЙС КАМЕНЕЦ "+actualityDate(kpkzPriceFileName);
+//                   // System.out.println(fullName);
+//                    rezult.add(fullName);
+//                }
+//            }
+//
+//            else{
+//                if(fullName.toUpperCase().contains(request.toUpperCase())){
+//                    Double price = row.getCell(15).getNumericCellValue() / 1000;
+//                    fullName += " - " + String.format("%.2f",price) + " грн/м"+ "  ПРАЙС КАМЕНЕЦ "+actualityDate(kpkzPriceFileName);
+//                    //System.out.println(fullName);
+//                    rezult.add(fullName);
+//                }
+//            }
+//
+//        }
+//    } //поиск в прайсе Кабельный Завод
+//
+//    private void findMatchesMK(String request, ArrayList<String> rezult) throws IOException {// поиск в файле МастерКабель
+//        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(mkFileName));
+//        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
+//        HSSFRow row;
+//        for (int i = 1; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
+//            try {
+//                row = myExcelSheet.getRow(i);
+//                if(row.getCell(1).getCellType()==1) {
+//                    String name = row.getCell(1).getStringCellValue().toUpperCase();
+//                    Double cuantaty = null;
+//                    String answer = "";
+//
+//                    if ((row.getCell(5).getCellType()==0)&&(row.getCell(5).getNumericCellValue()) > 0) {
+//
+//                        if (request.contains(" ")) {
+//                            String request1 = request.substring(0, request.lastIndexOf(" ")).toUpperCase();
+//                            String request2 = request.substring(request.lastIndexOf(" ") + 1).toUpperCase();
+//
+//                            if (name.startsWith(request1) && name.contains(request2)) {
+//                                cuantaty = row.getCell(5).getNumericCellValue();
+//                                answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
+//                                rezult.add(answer + actualityDate(mkFileName));
+//                            }
+//
+//                        } else {
+//                            if (name.contains(request)) {
+//                                cuantaty = row.getCell(5).getNumericCellValue();
+//                                answer = name + " - " + String.format("%.0f", cuantaty) + " м ";
+//                                rezult.add(answer + actualityDate(mkFileName));
+//                            }
+//                        }
+//                    }
+//                }
+//            }catch (IllegalStateException e) {
+//                e.printStackTrace();
+//            }catch (NullPointerException e2) {
+//                e2.printStackTrace();
+//            }
+//        } myExcelBook.close();
+//    } // поиск в файле МастерКабель
+//
+//    private void findMatchesInPriceEA(String request, ArrayList<String> rezult) throws IOException {//поиск в прайсе Энергоальянс
+//        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(eaPriceFileName));
+//        int numsOfSheets = myExcelBook.getNumberOfSheets();
+//        if(request.indexOf(" ")==0){request=request.substring(1);}
+////        System.out.println("----------------------------------------------------------");
+////        System.out.println("ПРАЙС ЭНЕРГОАЛЬЯНС" );
+//
+//        for(int s=0; s<numsOfSheets; s++){
+//
+//            HSSFSheet myExcelSheet = myExcelBook.getSheetAt(s);
+//            HSSFRow row;
+//            if (request.contains(" ")) {
+//                String request1 = request.substring(0, request.lastIndexOf(" "));
+//                String request2 = request.substring(request.lastIndexOf(" ") + 1);
+//
+//                for (int j = 0; j < 5; j++) {
+//                    for (int i = 1; i < myExcelSheet.getPhysicalNumberOfRows() ; i++) {
+//                        row = myExcelSheet.getRow(i);
+//                        try {
+//                            String name = row.getCell(1 + 4 * j).getStringCellValue();
+//                            String name2 = row.getCell(2 + 4 * j).getStringCellValue();
+//                            if (name.toUpperCase().startsWith(request1.toUpperCase()) && name2.toUpperCase().contains(request2.toUpperCase())) {
+//                                Double price = row.getCell(3 + 4 * j).getNumericCellValue();
+//                                String answer ="";
+//                                if(name.toUpperCase().startsWith("А")||name.toUpperCase().startsWith("СИП")){
+//                                    answer = name + " " + name2+ "  -  " + String.format("%.2f", price*eaAluminiumDiscount ) + " грн/м";}
+//                                else {answer = name + " " + name2+ "  -  " + String.format("%.2f", price*eaCuprumDiscount ) + " грн/м";}
+//                                answer = answer.replaceAll("Кабель ", "");
+//                                answer = answer.replaceAll("Провід ","");
+//                                //System.out.println(answer);
+//                                rezult.add(answer+ " ПРАЙС ЭНЕРГОАЛЬЯНС "+actualityDate(eaPriceFileName));
+//                            }
+//                        } catch (IllegalStateException e) { e.printStackTrace(); }
+//                        catch (NullPointerException e1){ e1.printStackTrace(); }
+//                    }
+//                }
+//            }
+//
+//            else{
+//
+//                for (int j = 0; j < 2; j++) {
+//                    for (int i = 1; i < myExcelSheet.getPhysicalNumberOfRows() ; i++) {
+//                        row = myExcelSheet.getRow(i);
+//                        try {
+//                            String name =row.getCell(1 + 4 * j).getStringCellValue();
+//                            String name2 =row.getCell(2 + 4 * j).getStringCellValue();
+//                            if (name.toUpperCase().startsWith(request.toUpperCase()) ) {
+//                                Double price = row.getCell(3 + 4 * j).getNumericCellValue();
+//
+//                                String answer ="";
+//                                if(name.toUpperCase().startsWith("А")||name.toUpperCase().startsWith("СИП")){
+//                                    answer = name + " - "+ " " + name2+ "  " + String.format("%.2f", price*eaAluminiumDiscount ) + " грн/м";}
+//                                else {answer = name + " - "+ " " + name2+ "  " + String.format("%.2f", price*eaCuprumDiscount ) + " грн/м";}
+//                                //System.out.println(answer);
+//                                answer = answer.replaceAll("Кабель ", "");
+//                                answer = answer.replaceAll("Провід ","");
+//                                rezult.add(answer+ " ПРАЙС ЭНЕРГОАЛЬЯНС "+actualityDate(eaPriceFileName));
+//                            }
+//                        } catch (IllegalStateException e) {e.printStackTrace();
+//                        }
+//                        catch (NullPointerException e1){e1.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    } //поиск в прайсе Энергоальянс
+//
 
 //    public void findinDB(String request) throws SQLException {
 //        String[] listOfWords = request.split(" ");
@@ -414,8 +430,7 @@ public class FindMatches {
 //}
 
 //загрузка файла Энергоальянс в базу данных
-    public static void loadEAfile() throws IOException, SQLException { //поиск в файле энергоальянс
-        Connection connection = createConnection();
+    public static void loadEAfile(Connection connection) throws IOException, SQLException { //поиск в файле энергоальянс
         PreparedStatement statementDelete = connection.prepareStatement("DELETE FROM kables.kable WHERE KABLE_STOCK_COMPANY = 'Энергоальянс (Запорожье)'");
         statementDelete.execute();
         PreparedStatement statement = connection.prepareStatement("INSERT INTO kable (KABLE_TYPE,KABLE_VOLUME,KABLE_STOCK_COMPANY,KABLE_STOCK_ACTUALITY) VALUES (?,?,?,?)");
@@ -430,6 +445,8 @@ public class FindMatches {
             try {
                 String fullname =row.getCell(1).getStringCellValue();
                 if((fullname.contains("Провід "))||(fullname.contains("Кабель "))){
+                    fullname = fullname.replaceAll("Провід ", "");
+                    fullname = fullname.replaceAll("Кабель ", "");
                     System.out.println(fullname);
                     Double cuantaty =row.getCell(7).getNumericCellValue();
                     statement.setString(1,fullname);
@@ -445,8 +462,7 @@ public class FindMatches {
     } //загрузка из файла остатков энергоальянс
 
     //загрузка файла ДТС в базу данных
-    public static void loadDTSfile() throws IOException, SQLException { //поиск в файле дтс
-        Connection connection = createConnection();
+    public static void loadDTSfile(Connection connection) throws IOException, SQLException { //поиск в файле дтс
         PreparedStatement statementDelete = connection.prepareStatement("DELETE FROM kables.kable WHERE KABLE_STOCK_COMPANY = 'ДТС (Киев)'");
         statementDelete.execute();
         PreparedStatement statement = connection.prepareStatement("INSERT INTO kable (KABLE_TYPE,KABLE_VOLUME,KABLE_PRICE,KABLE_STOCK_COMPANY,KABLE_STOCK_ACTUALITY) VALUES (?,?,?,?,?)");
@@ -462,7 +478,8 @@ public class FindMatches {
 
                 try {
                     if ((fullname.contains("Провід ")) || (fullname.contains("Кабель "))) {
-                        //name = fullname.replaceAll("Провід", "").replaceAll("Кабель", "");
+                        fullname = fullname.replaceAll("Провід ", "");
+                        fullname = fullname.replaceAll("Кабель ", "");
                         System.out.println(fullname);
                         Double cuantaty = (row.getCell(3).getNumericCellValue() * 1000);
 
@@ -483,6 +500,36 @@ public class FindMatches {
                 myExcelBook.close();
             }
     } //загрузка из файла статков и цен дтс
+
+    //загрузка файла МастерКабель в базу данных
+    public static void loadMKfile(Connection connection) throws IOException, SQLException { //поиск в файле энергоальянс
+        PreparedStatement statementDelete = connection.prepareStatement("DELETE FROM kables.kable WHERE KABLE_STOCK_COMPANY = 'МастерКабель (Прилуки)'");
+        statementDelete.execute();
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO kable (KABLE_TYPE,KABLE_VOLUME,KABLE_STOCK_COMPANY,KABLE_STOCK_ACTUALITY) VALUES (?,?,?,?)");
+        String date = actualityDate(mkFileName);
+        String stock = "МастерКабель (Прилуки)";
+        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(mkFileName));
+        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
+        HSSFRow row;
+        String name = "";
+        for (int i = 11; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
+            row = myExcelSheet.getRow(i);
+            try {
+                if(row.getCell(1).getCellType()==1){
+                    String fullname =row.getCell(1).getStringCellValue();
+                    System.out.println(fullname);
+                    Double cuantaty =row.getCell(5).getNumericCellValue();
+                    statement.setString(1,fullname);
+                    statement.setDouble(2,cuantaty);
+                    statement.setString(3,stock);
+                    statement.setString(4,date);
+                    statement.executeUpdate();
+                }
+            }catch (NullPointerException e5) {}
+            catch (IllegalStateException e){}
+        }
+        myExcelBook.close();
+    } //загрузка из файла остатков МастерКабель
 
 
 //Поиск в базе данных
@@ -592,6 +639,6 @@ public class FindMatches {
         Long dtsFileLastModifiated = file.lastModified();
         Date date = new Date(dtsFileLastModifiated);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-        return (" на " + file.getName().substring(0,file.getName().lastIndexOf("."))+ " актуально на " + sdf.format(date));
+        return (" актуально на " + sdf.format(date));
     }
 }
