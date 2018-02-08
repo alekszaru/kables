@@ -20,7 +20,7 @@ import java.util.Date;
 public class FindMatches {
        private static String dtsFileName = "d://stock/DTS.xls";
         private static String eaFileName = "d://stock/EA.xls";
-        private static String eaPriceFileName = "d://stock/EAprise.xls";
+        private static String eaPriceFileName = "d://stock/ЕАprisenew.xls";
         private static String mkPriceFileName = "";
         private static String mkFileName = "d://stock/MK.xls";
         private static String bkzPriceFileName = "";
@@ -50,6 +50,15 @@ public class FindMatches {
         //загрузка файла Энергоальянс
         try {
             loadEAfile(connection);
+        }catch (NullPointerException e){
+
+        } catch (SQLException e) {
+
+        }
+
+        //загрузка файла Энергоальянс price
+        try {
+            loadEAprisefile(connection);
         }catch (NullPointerException e){
 
         } catch (SQLException e) {
@@ -429,7 +438,37 @@ public class FindMatches {
 //    }
 //}
 
-//загрузка файла Энергоальянс в базу данных
+    //загрузка файла price Энергоальянс в базу данных
+    public static void loadEAprisefile(Connection connection) throws IOException, SQLException { //поиск в файле энергоальянс
+        PreparedStatement statementDelete = connection.prepareStatement("DELETE FROM kables.kable WHERE KABLE_STOCK_COMPANY = 'Энергоальянс Прайс (Запорожье)'");
+        statementDelete.execute();
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO kable (KABLE_TYPE,KABLE_PRICE,KABLE_STOCK_COMPANY,KABLE_STOCK_ACTUALITY) VALUES (?,?,?,?)");
+        String date = actualityDate(eaPriceFileName);
+        String stock = "Энергоальянс Прайс (Запорожье)";
+        HSSFWorkbook myExcelBook = new HSSFWorkbook(new FileInputStream(eaPriceFileName));
+        HSSFSheet myExcelSheet = myExcelBook.getSheetAt(0);
+        HSSFRow row;
+        String name = "";
+        for (int i = 1; i <= myExcelSheet.getPhysicalNumberOfRows() - 1; i++) {
+            row = myExcelSheet.getRow(i);
+            try {
+                String fullname =row.getCell(0).getStringCellValue()+" "+row.getCell(1).getStringCellValue();
+                    System.out.println(fullname);
+                    Double price =row.getCell(2).getNumericCellValue();
+                    statement.setString(1,fullname);
+                    statement.setDouble(2,price);
+                    statement.setString(3,stock);
+                    statement.setString(4,date);
+                    statement.executeUpdate();
+
+            }catch (NullPointerException e5) {}
+            catch (IllegalStateException e){}
+        }
+        myExcelBook.close();
+    } //загрузка из файла остатков энергоальянс
+
+
+    //загрузка файла Энергоальянс в базу данных
     public static void loadEAfile(Connection connection) throws IOException, SQLException { //поиск в файле энергоальянс
         PreparedStatement statementDelete = connection.prepareStatement("DELETE FROM kables.kable WHERE KABLE_STOCK_COMPANY = 'Энергоальянс (Запорожье)'");
         statementDelete.execute();
