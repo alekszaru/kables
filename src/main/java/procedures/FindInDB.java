@@ -92,7 +92,7 @@ public class FindInDB {
 
         Session session = SessionFactoryImpl.getSession();;
         Transaction transaction =  session.beginTransaction();
-        Query query = session.createQuery("from KableEntity where kableType like :name1 and kableType like :name2 and kableType like :name3");
+        Query query = session.createQuery("from KableEntity where kableType like :name1 and kableType like :name2 and kableType like :name3 and kableVolume>0");
         query.setParameter("name1",name1+"%");
         query.setParameter("name2","%"+name2+"%");
         query.setParameter("name3","%"+name3+"%");

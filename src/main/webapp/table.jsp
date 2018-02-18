@@ -41,6 +41,7 @@
                 out.println("</td>");
 
                 out.println("<td class=\"tg-yw4l\">");
+
                 out.println(kableEntity.getKableVolume());
                 out.println("</td>");
 
@@ -61,7 +62,7 @@
     </table>
 </div>
 
-<script SRC="tags/table.js" rel="script" language=JavaScript/>
+
 
     <br><footer>
 

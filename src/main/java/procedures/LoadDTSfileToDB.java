@@ -35,8 +35,8 @@ public class LoadDTSfileToDB {
             String fullname = getTextCellValue(row.getCell(columnwithName));
 
             try {
-                if ((fullname.contains("Провід ")) || (fullname.contains("Кабель "))) {
-                    fullname = fullname.replaceAll("Провід ", "");
+
+                    fullname = fullname.replaceAll("Провiд ", "");
                     fullname = fullname.replaceAll("Кабель ", "");
                     String nameToBD = fullname;
                     fullname = fullname.toUpperCase().replaceAll(" ","");
@@ -44,7 +44,7 @@ public class LoadDTSfileToDB {
                     Double price = row.getCell(columnwithPrice).getNumericCellValue() / 1000;
                     addKableToDB(fullname,cuantaty,price,stock,date,nameToBD);
                     System.out.println(fullname);
-                }
+
             } catch (IllegalStateException e) {
                 e.printStackTrace();
             } catch (NullPointerException e5) {
