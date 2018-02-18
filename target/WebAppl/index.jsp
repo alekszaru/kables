@@ -1,7 +1,6 @@
-<%@ page import="java.io.PrintWriter" %>
-<%@ page import="java.io.File" %>
-<%@ page import="main.FindMatches" %>
-<%@ page import="static sun.misc.MessageUtils.out" %>
+<%@ page import="procedures.FindInDB" %>
+<%@ page import="Entity.KableEntity" %>
+<%@ page import="java.util.List" %>
 <%@ page language="java" contentType="text/html; charset=windows-1251" pageEncoding="windows-1251"%>
 
 <html>
@@ -16,13 +15,16 @@
     </div>
 </header>
 
+
 <body>
 <br>
 <br>
 <br>
 <div align="center">
-<form method="post" action="find">
+<%--<form method="post" action="find">--%>
+    <form method="post" action="table.jsp">
     Введите запрос <input type="text" name="cabel" align="">
+
     <input type="submit" value="Найти" align="center">
 </form>
 </div>
@@ -39,7 +41,7 @@
     ВВГ 3х16+
 </div>
 <br>
-
+<br>
 
 </body>
 </html>

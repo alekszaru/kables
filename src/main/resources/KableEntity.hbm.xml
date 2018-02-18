@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="Entity.KableEntity" table="kable" schema="kables">
+        <id name="id">
+            <column name="id" sql-type="int(11)"/>
+        </id>
+        <property name="kableType">
+            <column name="KABLE_TYPE" sql-type="varchar(255)"/>
+        </property>
+        <property name="kableVolume">
+            <column name="KABLE_VOLUME" sql-type="double(10,0)" not-null="true"/>
+        </property>
+        <property name="kablePrice">
+            <column name="KABLE_PRICE" sql-type="double(10,2)" precision="10" scale="2" not-null="true"/>
+        </property>
+        <property name="kableStockCompany">
+            <column name="KABLE_STOCK_COMPANY" sql-type="varchar(45)" length="45"/>
+        </property>
+        <property name="kableStockActuality">
+            <column name="KABLE_STOCK_ACTUALITY" sql-type="varchar(40)" length="40"/>
+        </property>
+        <property name="kableFullName">
+            <column name="KABLE_FULL_NAME" sql-type="varchar(255)"/>
+        </property>
+    </class>
+</hibernate-mapping>
