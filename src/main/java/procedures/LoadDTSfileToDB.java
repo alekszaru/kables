@@ -1,5 +1,6 @@
 package procedures;
 
+import hibernate.SessionFactoryImpl;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -14,11 +15,24 @@ import static procedures.AditionalProcedure.getTextCellValue;
 
 
 public class LoadDTSfileToDB {
-    private static String dtsFileName = "d://stock/DTS.xls";
+    private static String dtsFileName = "d://stock/DTS1.xls";
     private static String stock = "ДТС (Киев)";
     private static int columnwithName = 0;
     private static int columnwithQuantity = 1;
     private static int columnwithPrice = 2;
+
+
+    public static void main(String[] args) {
+        try {
+            loadDTSfile();
+        } catch (NullPointerException e) {
+        } catch (SQLException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     //загрузка файла ДТС в базу данных
     public static void loadDTSfile() throws IOException, SQLException { //поиск в файле дтс
@@ -35,22 +49,25 @@ public class LoadDTSfileToDB {
             String fullname = getTextCellValue(row.getCell(columnwithName));
 
             try {
-
-                    fullname = fullname.replaceAll("Провiд ", "");
+                if(fullname.contains("Провід")|| fullname.contains("Кабель ")) {
+                    fullname = fullname.replaceAll("Провід ", "");
                     fullname = fullname.replaceAll("Кабель ", "");
+
                     String nameToBD = fullname;
-                    fullname = fullname.toUpperCase().replaceAll(" ","");
+                    fullname = fullname.toUpperCase().replaceAll(" ", "");
                     Double cuantaty = (row.getCell(columnwithQuantity).getNumericCellValue() * 1000);
                     Double price = row.getCell(columnwithPrice).getNumericCellValue() / 1000;
-                    addKableToDB(fullname,cuantaty,price,stock,date,nameToBD);
-                    System.out.println(fullname);
-
+                    addKableToDB(fullname, cuantaty, price, stock, date, nameToBD);
+                    System.out.println(fullname+" "+stock);
+                }
             } catch (IllegalStateException e) {
                 e.printStackTrace();
             } catch (NullPointerException e5) {
                 e5.printStackTrace();
             }
             myExcelBook.close();
+
+
         }
     } //загрузка из файла статков и цен дтс
 }

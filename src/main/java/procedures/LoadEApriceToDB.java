@@ -21,6 +21,16 @@ public class LoadEApriceToDB {
     private static int columnwithName1 = 0;
     private static int columnwithName2 = 1;
     private static int columnwithPrice = 2;
+    private static double discountCu = 0.86;
+    private static double discountAl = 0.88;
+
+    public static void main(String[] args) {
+        try {
+            loadPriceEA();
+        }catch (NullPointerException e){e.printStackTrace();}
+        catch (Exception e) { e.printStackTrace();}
+
+    }
 
     //загрузка прайса Энергоальянс
     public static void loadPriceEA() throws IOException {
@@ -56,7 +66,10 @@ public class LoadEApriceToDB {
 
                     if (fullname.equals(name)) {
                         System.out.println(fullname);
-                        price = row.getCell(columnwithPrice).getNumericCellValue();
+                        Double discount = 1.0;
+                        if(fullname.startsWith("А")||fullname.startsWith("СИП")){discount=discountAl;}
+                        else discount=discountCu;
+                        price = row.getCell(columnwithPrice).getNumericCellValue()*discount;
                         Query query = session.createQuery("update KableEntity set kablePrice = :price where kableType = :name and kableStockCompany = :stock");
                         query.setParameter("price",price);
                         query.setParameter("name", name);

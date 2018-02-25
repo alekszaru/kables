@@ -10,6 +10,7 @@ import java.util.Date;
 import static procedures.LoadDTSfileToDB.loadDTSfile;
 import static procedures.LoadEAfileToDB.loadEAfile;
 import static procedures.LoadEApriceToDB.loadPriceEA;
+import static procedures.LoadKPKZfileToDB.loadKPKZpriceToDB;
 import static procedures.LoadMKfileToDB.loadMKfile;
 
 public class LoadToDB {
@@ -40,6 +41,12 @@ public class LoadToDB {
         //загрузка файла Ёнергоаль€нс price. должен идти только после загрузки файла с остатками Ёнергоаль€нс
         try {
             loadPriceEA();
+        }catch (NullPointerException e){e.printStackTrace();}
+        catch (Exception e) { e.printStackTrace();}
+
+
+        try {
+            loadKPKZpriceToDB();
         }catch (NullPointerException e){e.printStackTrace();}
         catch (Exception e) { e.printStackTrace();}
 

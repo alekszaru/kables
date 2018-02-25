@@ -1,5 +1,6 @@
 package procedures;
 
+import hibernate.SessionFactoryImpl;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -22,6 +23,17 @@ public class LoadEAfileToDB {
         return stock;
     }
 
+    public static void main(String[] args) {
+        try {
+            loadEAfile();
+        } catch (NullPointerException e) {
+        } catch (SQLException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
     //загрузка файла Ёнергоаль€нс в базу данных
     public static void loadEAfile() throws IOException, SQLException { //поиск в файле энергоаль€нс
 
@@ -45,7 +57,7 @@ public class LoadEAfileToDB {
                     fullname = fullname.toUpperCase().replaceAll(" ","");
                     Double cuantaty = row.getCell(columnwithQuantity).getNumericCellValue();
                     addKableToDB(fullname,cuantaty,0.00,stock,date,nameToDB);
-                    System.out.println(fullname);
+                    System.out.println(fullname+" "+stock);
                 }
             }catch (NullPointerException e5) {}
             catch (IllegalStateException e){}

@@ -1,12 +1,12 @@
 
                       .tg {
                           border-collapse: collapse;
-                          border-spacing: 0;
+                          border-spacing: 1px;
                           border-color: #999;
                           margin: 0px auto;
                       }
 
-.tg td {
+ td {
     font-family: Arial, sans-serif;
     font-size: 14px;
     padding: 10px 5px;
@@ -19,13 +19,13 @@
     background-color: #F7FDFA;
 }
 
-.tg th {
+ th {
     font-family: Arial, sans-serif;
     font-size: 14px;
     font-weight: normal;
     padding: 10px 5px;
     border-style: solid;
-    border-width: 0px;
+    border-width: 1px;
     overflow: hidden;
     word-break: normal;
     border-color: #999;
@@ -33,16 +33,18 @@
     background-color: #26ADE4;
 }
 
-.tg .tg-t1l0 {
-    font-size: 16px;
+ .thd {
+    font-size: 18px;
     font-family: "Arial Black", Gadget, sans-serif !important;;
-    vertical-align: top
+    vertical-align: top;
+
 }
 
-.tg .tg-yw4l {
+ .tg-yw4l {
     font-size: 14px;
     font-family: "Arial", Gadget, sans-serif !important;;
-    vertical-align: top
+    vertical-align: top;
+    alignment: center;
 }
 
 th.tg-sort-header::-moz-selection {
@@ -61,7 +63,7 @@ table th.tg-sort-header:after {
     content: '';
     float: right;
     margin-top: 7px;
-    border-width: 0 4px 4px;
+    border-width: 0 1px 1px;
     border-style: solid;
     border-color: #404040 transparent;
     visibility: hidden;
@@ -78,7 +80,7 @@ table th.tg-sort-desc:after, table th.tg-sort-asc:after, table th.tg-sort-asc:ho
 
 table th.tg-sort-desc:after {
     border-bottom: none;
-    border-width: 4px 4px 0;
+    border-width: 1px 1px 0;
 }
 
 @media screen and (max-width: 767px) {

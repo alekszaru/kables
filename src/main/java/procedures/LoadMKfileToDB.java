@@ -1,5 +1,6 @@
 package procedures;
 
+import hibernate.SessionFactoryImpl;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -17,6 +18,17 @@ public class LoadMKfileToDB {
     private static int columnwithName = 1;
     private static int columnwithQuantity = 5;
 
+
+    public static void main(String[] args) {
+        try {
+            loadMKfile();
+        } catch (NullPointerException e) {
+        } catch (SQLException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     //загрузка файла МастерКабель в базу данных
     public static void loadMKfile() throws IOException, SQLException { //поиск в файле энергоальянс
@@ -71,7 +83,7 @@ public class LoadMKfileToDB {
 
                         Double cuantaty = row.getCell(columnwithQuantity).getNumericCellValue()*1000;
                         addKableToDB(fullname,cuantaty,0.00,stock,date,nameToDB);
-                        System.out.println(fullname);
+                        System.out.println(fullname+" "+stock);
                     }
                 }
             }catch (NullPointerException e5) {}
